@@ -25,12 +25,22 @@ public class LoginDialog extends JDialog
 	{
 		super(frame, title, modal);
 		
-		JPanel panel = new JPanel(new GridBagLayout());
 		GridBagConstraints c = new GridBagConstraints();
 		c.insets = new Insets(5, 5, 0, 5);
 		
 		c.fill = GridBagConstraints.HORIZONTAL;
+		
+		add(buildEntryPanel(c), BorderLayout.CENTER);
+		add(buildButtonPanel(c, frame), BorderLayout.PAGE_END);
+		
+		pack();
+		setResizable(false);
+	}
 	
+	private JPanel buildEntryPanel(GridBagConstraints c)
+	{
+		JPanel panel = new JPanel(new GridBagLayout());
+		
 		lblLoginAdminCredentials = new JLabel("Admin login -> admin/admin");
 		c.gridx = 0;
 		c.gridy = 0;
@@ -73,6 +83,23 @@ public class LoginDialog extends JDialog
 		c.gridwidth = 2;
 		panel.add(txtPassword, c);
 		
+		return panel;
+	}
+	
+	private JPanel buildButtonPanel(GridBagConstraints c, Frame frame)
+	{
+		JPanel panel = new JPanel();
+		
+		btnCancel = new JButton("Cancel");
+		btnCancel.addActionListener(new ActionListener() 
+		{
+			public void actionPerformed(ActionEvent e)
+			{
+				dispose();
+			}
+		});
+		panel.add(btnCancel);
+		
 		btnLogin = new JButton("Login");
 		btnLogin.addActionListener(new ActionListener() 
 		{
@@ -84,56 +111,20 @@ public class LoginDialog extends JDialog
 				if ((Login.authenticateUser(username, password, true)) && (username.equals("admin") && password.equals("admin")))
 				{
 					((BookManagerFrame) frame).buildAdminForm();
+					dispose();
 //					JOptionPane.showMessageDialog(frame, "Logged in as admin", "Login type", JOptionPane.INFORMATION_MESSAGE);
 				}
 				else if ((Login.authenticateUser(username, password, false)) && (username.equals("default") && password.equals("default")))
 				{
 					((BookManagerFrame) frame).buildStandardForm();
+					dispose();
 //					JOptionPane.showMessageDialog(frame, "Logged in as standard user", "Login type", JOptionPane.INFORMATION_MESSAGE);
 				}
-//				dispose();
 				
 			}
 		});
+		panel.add(btnLogin);
 		
-		btnCancel = new JButton("Cancel");
-		btnCancel.addActionListener(new ActionListener() 
-		{
-			public void actionPerformed(ActionEvent e)
-			{
-				dispose();
-			}
-		});
-		
-//		JPanel optionPanel = new JPanel();
-//		optionPanel.add(rdoStandard);
-//		optionPanel.add(rdoAdmin);
-		
-//		rdoStandard = new JRadioButton("Standard User");
-//		rdoStandard.setSelected(true);;
-//		buttonGroup.add(rdoStandard);
-//		c.gridx = 0;
-//		c.gridy = 0;
-////		c.gridwidth = ;
-//		optionPanel.add(rdoStandard, c);
-		
-//		rdoAdmin = new JRadioButton("Admin User");
-//		buttonGroup.add(rdoAdmin);
-//		c.gridx = 0;
-//		c.gridy = 1;
-////		c.gridwidth = 3;
-//		optionPanel.add(rdoAdmin, c);
-		
-		
-		JPanel buttonPanel = new JPanel();
-		buttonPanel.add(btnCancel);
-		buttonPanel.add(btnLogin);
-		
-//		getContentPane().add(optionPanel, BorderLayout.PAGE_START);
-		getContentPane().add(panel, BorderLayout.CENTER);
-		getContentPane().add(buttonPanel, BorderLayout.PAGE_END);
-		
-		pack();
-		setResizable(false);
+		return panel;
 	}
 }
