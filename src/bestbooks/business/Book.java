@@ -2,18 +2,18 @@ package bestbooks.business;
 
 import java.text.NumberFormat;
 
-public class Books
+public class Book
 {
 	private String code;
 	private String description;
 	private double price;
 	
-	public Books()
+	public Book()
 	{
 		this("", "", 0);
 	}
 	
-	public Books(String code, String description, double price)
+	public Book(String code, String description, double price)
 	{
 		this.code = code;
 		this.description = description;

@@ -14,6 +14,9 @@ import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JTable;
+import javax.swing.ListSelectionModel;
 import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
 import javax.swing.border.EmptyBorder; 
@@ -21,9 +24,11 @@ import javax.swing.border.EmptyBorder;
 @SuppressWarnings("serial")
 public class BookManagerFrame extends JFrame
 {
-	private JPanel contentPane;
 	private JMenuItem mnuFileLogin;
 	private JMenuItem mnuFileExit;
+	private JTable bookTable;
+	private BookTableModel bookTableModel;
+	
 	private JList listBooks;
 	public DefaultListModel listModel;
 	
@@ -125,6 +130,14 @@ public class BookManagerFrame extends JFrame
 		panel.add(deleteButton);
 		
 		BookManagerFrame.this.add(panel, BorderLayout.NORTH);
+		
+		// Build table
+		bookTableModel = new BookTableModel();
+		JTable table = new JTable(bookTableModel);
+		table.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+		table.setBorder(null);
+		BookManagerFrame.this.add(new JScrollPane(table), BorderLayout.CENTER);
+		
 		panel.revalidate();  
 		panel.repaint();
 	}
