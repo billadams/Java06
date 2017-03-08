@@ -5,6 +5,8 @@ import java.util.List;
 import javax.swing.table.AbstractTableModel;
 
 import bestbooks.business.Book;
+import bestbooks.db.BookDB;
+import bestbooks.db.DBException;
 
 @SuppressWarnings("serial")
 public class BookTableModel extends AbstractTableModel
@@ -14,7 +16,14 @@ public class BookTableModel extends AbstractTableModel
 	
 	public BookTableModel()
 	{
-		// TODO Code to connect to DB and fill books list.
+		try
+		{
+			books = BookDB.getAll();
+		}
+		catch (DBException e)
+		{
+			System.out.println(e);;
+		}
 	}
 	
 	Book getBook(int rowIndex)

@@ -109,7 +109,7 @@ public class BookManagerFrame extends JFrame
 		addButton.setToolTipText("Add book");
 		addButton.addActionListener((ActionEvent) ->
 		{
-//			addNewBook();
+			addNewBook();
 		});
 		panel.add(addButton);
 		
@@ -140,6 +140,13 @@ public class BookManagerFrame extends JFrame
 		
 		panel.revalidate();  
 		panel.repaint();
+	}
+	
+	private void addNewBook()
+	{
+		BookForm bookForm = new BookForm(this, "Add Book", true);
+		bookForm.setLocationRelativeTo(this);
+		bookForm.setVisible(true);
 	}
 	
 	public void buildStandardForm()
