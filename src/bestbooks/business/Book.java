@@ -4,7 +4,7 @@ import java.text.NumberFormat;
 
 public class Book
 {
-	private String code;
+	private String productCode;
 	private String description;
 	private double price;
 	
@@ -13,22 +13,22 @@ public class Book
 		this("", "", 0);
 	}
 	
-	public Book(String code, String description, double price)
+	public Book(String productCode, String description, double price)
 	{
-		this.code = code;
+		this.productCode = productCode;
 		this.description = description;
 		this.price = price;
 		
 	}
 
-	public String getCode()
+	public String getProductCode()
 	{
-		return code;
+		return productCode;
 	}
 
-	public void setCode(String code)
+	public void setProductCode(String productCode)
 	{
-		this.code = code;
+		this.productCode = productCode;
 	}
 
 	public String getDescription()

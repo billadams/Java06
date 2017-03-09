@@ -112,6 +112,7 @@ public class LoginDialog extends JDialog
 				{
 					((BookManagerFrame) frame).buildAdminForm();
 					dispose();
+					
 //					JOptionPane.showMessageDialog(frame, "Logged in as admin", "Login type", JOptionPane.INFORMATION_MESSAGE);
 				}
 				else if ((Login.authenticateUser(username, password, false)) && (username.equals("default") && password.equals("default")))

@@ -27,7 +27,7 @@ public class BookDB
 				double price	   = rs.getDouble("Price");
 				
 				Book b = new Book();
-				b.setCode(productCode);
+				b.setProductCode(productCode);
 				b.setDescription(description);
 				b.setPrice(price);
 				books.add(b);
@@ -56,7 +56,7 @@ public class BookDB
 				rs.close();
 				
 				Book b = new Book();
-				b.setCode(productCode);
+				b.setProductCode(productCode);
 				b.setDescription(description);
 				b.setPrice(price);
 				
@@ -80,7 +80,7 @@ public class BookDB
                 + "VALUES (?, ?, ?)";
         Connection connection = DBUtil.getConnection();
         try (PreparedStatement ps = connection.prepareStatement(sql)) {
-            ps.setString(1, book.getCode());
+            ps.setString(1, book.getProductCode());
             ps.setString(2, book.getDescription());
             ps.setDouble(3, book.getPrice());
             ps.executeUpdate();
@@ -97,9 +97,10 @@ public class BookDB
                 + "WHERE ProductCode = ?";
         Connection connection = DBUtil.getConnection();
         try (PreparedStatement ps = connection.prepareStatement(sql)) {
-            ps.setString(1, book.getCode());
+            ps.setString(1, book.getProductCode());
             ps.setString(2, book.getDescription());
             ps.setDouble(3, book.getPrice());
+            ps.setString(4, book.getProductCode());
             ps.executeUpdate();
         } catch (SQLException e) {
             throw new DBException(e);
@@ -112,7 +113,7 @@ public class BookDB
                    + "WHERE ProductCode = ?";
         Connection connection = DBUtil.getConnection();
         try (PreparedStatement ps = connection.prepareStatement(sql)) {
-            ps.setString(1, book.getCode());
+            ps.setString(1, book.getProductCode());
             ps.executeUpdate();
         } catch (SQLException e) {
             throw new DBException(e);

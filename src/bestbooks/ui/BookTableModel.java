@@ -33,7 +33,12 @@ public class BookTableModel extends AbstractTableModel
 	
 	void databaseUpdated()
 	{
-		// TODO Code to update database and fireTableDataChanged
+        try {
+            books = BookDB.getAll();
+            fireTableDataChanged();
+        } catch (DBException e) {
+            System.out.println(e);
+        }   
 	}
 
 	@Override
@@ -60,7 +65,7 @@ public class BookTableModel extends AbstractTableModel
 		switch (columnIndex)
 		{
 			case 0:
-				return books.get(rowIndex).getCode();
+				return books.get(rowIndex).getProductCode();
 			case 1:
 				return books.get(rowIndex).getDescription();
 			case 2:

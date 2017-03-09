@@ -21,7 +21,9 @@ import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
 import javax.swing.border.EmptyBorder;
 
-import bestbooks.business.Book; 
+import bestbooks.business.Book;
+import bestbooks.db.BookDB;
+import bestbooks.db.DBException;
 
 @SuppressWarnings("serial")
 public class BookManagerFrame extends JFrame
@@ -30,6 +32,7 @@ public class BookManagerFrame extends JFrame
 	private JMenuItem mnuFileExit;
 	private JTable bookTable;
 	private BookTableModel bookTableModel;
+	private JPanel panel;
 	
 	private JList listBooks;
 	public DefaultListModel listModel;
@@ -50,15 +53,7 @@ public class BookManagerFrame extends JFrame
 		
 		// Add the menubar to the form.
 		this.setJMenuBar(buildMenuBar());
-		
 
-		
-		
-		// Build the main frames JPanel.
-//		contentPane = new JPanel();
-//		contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
-//		contentPane.setLayout(new BorderLayout(0, 0));
-//		setContentPane(contentPane);
 		setVisible(true);
 	}
 	
@@ -77,6 +72,7 @@ public class BookManagerFrame extends JFrame
 		{
 			// Get the login type and build the relevant form based on the login credentials.
 			getLoginType();
+//			BookManagerFrame.this.mnuFileLogin.setText("Logout");
 		});
 		mnuFile.add(mnuFileLogin);
 		
@@ -105,7 +101,7 @@ public class BookManagerFrame extends JFrame
 	
 	public void buildAdminForm()
 	{
-		JPanel panel = new JPanel();
+		panel = new JPanel();
 		
 		JButton addButton = new JButton("Add");
 		addButton.setToolTipText("Add book");
@@ -127,7 +123,7 @@ public class BookManagerFrame extends JFrame
 		deleteButton.setToolTipText("Delete selected book");
 		deleteButton.addActionListener((ActionEvent) ->
 		{
-//			deleteBook();
+			deleteBook();
 		});
 		panel.add(deleteButton);
 		
@@ -136,12 +132,18 @@ public class BookManagerFrame extends JFrame
 		// Build table
 		bookTableModel = new BookTableModel();
 		JTable table = new JTable(bookTableModel);
+		bookTable = table;
 		table.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 		table.setBorder(null);
 		BookManagerFrame.this.add(new JScrollPane(table), BorderLayout.CENTER);
 		
 		panel.revalidate();  
 		panel.repaint();
+	}
+	
+	public void buildStandardForm()
+	{
+		JOptionPane.showMessageDialog(BookManagerFrame.getFrames()[0], "Start building standard form");
 	}
 	
 	private void addNewBook()
@@ -169,9 +171,34 @@ public class BookManagerFrame extends JFrame
 		}
 	}
 	
-	public void buildStandardForm()
+	private void deleteBook()
 	{
-		JOptionPane.showMessageDialog(BookManagerFrame.getFrames()[0], "Start building standard form");
+        int selectedRow = bookTable.getSelectedRow();
+        if (selectedRow == -1) {
+            JOptionPane.showMessageDialog(this,
+                    "No product is currently selected.", 
+                    "No product selected", JOptionPane.ERROR_MESSAGE);
+        } 
+        else 
+        {
+            Book book = bookTableModel.getBook(selectedRow);
+            int ask = JOptionPane.showConfirmDialog(this,
+                    "Are you sure you want to delete " + 
+                        book.getDescription() + " from the database?",
+                    "Confirm delete", JOptionPane.YES_NO_OPTION);
+            if (ask == JOptionPane.YES_OPTION) 
+            {
+                try 
+                {                    
+                    BookDB.delete(book);
+                    fireDatabaseUpdatedEvent();
+                } 
+                catch (DBException e) {
+                	
+                    System.out.println(e);
+                }
+            }
+        }
 	}
 	
     void fireDatabaseUpdatedEvent() {

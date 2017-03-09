@@ -42,7 +42,7 @@ public class BookForm extends JDialog
 		this(parent, title, modal);
 		this.book = book;
 		confirmButton.setText("Save");
-		codeField.setText(book.getCode());
+		codeField.setText(book.getProductCode());
 		descriptionField.setText(book.getDescription());
 		priceField.setText(Double.toString(book.getPrice()));
 	}
@@ -113,11 +113,11 @@ public class BookForm extends JDialog
 		return c;	
 	}
 	
-	private void confirmButtonActionPerformed() {
+	private void cancelButtonActionPerformed() {
 		dispose();
 	}
 	
-	private void cancelButtonActionPerformed()
+	private void confirmButtonActionPerformed()
 	{
 		if (validateData())
 		{
@@ -161,7 +161,7 @@ public class BookForm extends JDialog
         String description = descriptionField.getText();
         String priceString = priceField.getText();
         double price = Double.parseDouble(priceString);
-        book.setCode(productCode);
+        book.setProductCode(productCode);
         book.setDescription(description);
         book.setPrice(price);
     }
