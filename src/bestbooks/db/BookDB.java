@@ -47,7 +47,7 @@ public class BookDB
 		Connection connection = DBUtil.getConnection();
 		try (PreparedStatement ps = connection.prepareStatement(sql))
 		{
-			ps.setString(0,  productCode);
+			ps.setString(1,  productCode);
 			ResultSet rs = ps.executeQuery();
 			if (rs.next()) {
 //				String productCode = rs.getString("ProductCode");
@@ -73,4 +73,49 @@ public class BookDB
 			throw new DBException(e);
 		}
 	}
+	
+    public static void add(Book book) throws DBException {
+        String sql
+                = "INSERT INTO products (ProductCode, Description, Price) "
+                + "VALUES (?, ?, ?)";
+        Connection connection = DBUtil.getConnection();
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setString(1, book.getCode());
+            ps.setString(2, book.getDescription());
+            ps.setDouble(3, book.getPrice());
+            ps.executeUpdate();
+        } catch (SQLException e) {
+            throw new DBException(e);
+        }
+    }
+
+    public static void update(Book book) throws DBException {
+        String sql = "UPDATE products SET "
+                + "ProductCode = ?, "
+                + "Description = ?, "
+                + "Price = ? "
+                + "WHERE ProductCode = ?";
+        Connection connection = DBUtil.getConnection();
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setString(1, book.getCode());
+            ps.setString(2, book.getDescription());
+            ps.setDouble(3, book.getPrice());
+            ps.executeUpdate();
+        } catch (SQLException e) {
+            throw new DBException(e);
+        }        
+    }
+    
+    public static void delete(Book book) 
+            throws DBException {
+        String sql = "DELETE FROM products "
+                   + "WHERE ProductCode = ?";
+        Connection connection = DBUtil.getConnection();
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setString(1, book.getCode());
+            ps.executeUpdate();
+        } catch (SQLException e) {
+            throw new DBException(e);
+        }
+    }
 }

@@ -19,7 +19,9 @@ import javax.swing.JTable;
 import javax.swing.ListSelectionModel;
 import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
-import javax.swing.border.EmptyBorder; 
+import javax.swing.border.EmptyBorder;
+
+import bestbooks.business.Book; 
 
 @SuppressWarnings("serial")
 public class BookManagerFrame extends JFrame
@@ -117,7 +119,7 @@ public class BookManagerFrame extends JFrame
 		editButton.setToolTipText("Edit selected book");
 		editButton.addActionListener((ActionEvent) ->
 		{
-//			editBook();
+			editBook();
 		});
 		panel.add(editButton);
 		
@@ -149,9 +151,31 @@ public class BookManagerFrame extends JFrame
 		bookForm.setVisible(true);
 	}
 	
+	private void editBook()
+	{
+		int selectedRow = bookTable.getSelectedRow();
+		if (selectedRow == -1)
+		{
+			JOptionPane.showMessageDialog(this, 
+					"No product is currently selected.",
+					"No product selected", JOptionPane.ERROR_MESSAGE);
+		}
+		else
+		{
+			Book book = bookTableModel.getBook(selectedRow);
+			BookForm bookForm = new BookForm(this, "Edit Product", true, book);
+			bookForm.setLocationRelativeTo(this);
+			bookForm.setVisible(true);
+		}
+	}
+	
 	public void buildStandardForm()
 	{
 		JOptionPane.showMessageDialog(BookManagerFrame.getFrames()[0], "Start building standard form");
 	}
+	
+    void fireDatabaseUpdatedEvent() {
+        bookTableModel.databaseUpdated();
+    }   
 	
 }

@@ -11,11 +11,14 @@ import java.awt.Insets;
 import javax.swing.JButton;
 import javax.swing.JDialog;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 import javax.swing.WindowConstants;
 
 import bestbooks.business.Book;
+import bestbooks.db.BookDB;
+import bestbooks.db.DBException;
 
 @SuppressWarnings("serial")
 public class BookForm extends JDialog
@@ -65,7 +68,12 @@ public class BookForm extends JDialog
 		
 		cancelButton.setText("Cancel");
 		cancelButton.addActionListener((ActionEvent) -> {
-//			confirmButtonActionPerformed();
+			cancelButtonActionPerformed();
+		});
+		
+		confirmButton.setText("Add");
+		confirmButton.addActionListener((ActionEvent) -> {
+			confirmButtonActionPerformed();
 		});
 		
 		JPanel bookPanel = new JPanel();
@@ -89,7 +97,7 @@ public class BookForm extends JDialog
 		buttonPanel.add(cancelButton);
 		
 		setLayout(new BorderLayout());
-		add(buttonPanel, BorderLayout.CENTER);
+		add(bookPanel, BorderLayout.CENTER);
 		add(buttonPanel, BorderLayout.SOUTH);
 		pack();
 	}
@@ -104,4 +112,84 @@ public class BookForm extends JDialog
 		
 		return c;	
 	}
+	
+	private void confirmButtonActionPerformed() {
+		dispose();
+	}
+	
+	private void cancelButtonActionPerformed()
+	{
+		if (validateData())
+		{
+			setData();
+			if (confirmButton.getText().equals("Add"))
+			{
+				doAdd();
+			}
+			else
+			{
+				doEdit();
+			}
+		}
+	}
+	
+	private boolean validateData() {
+        String productCode = codeField.getText();
+        String description = descriptionField.getText();
+        String priceString = priceField.getText();
+        if (productCode == null || description == null || priceString == null ||
+        		productCode.isEmpty() || description.isEmpty() || priceString.isEmpty()) {
+            JOptionPane.showMessageDialog(this, "Please fill in all fields.",
+                    "Missing Fields", JOptionPane.INFORMATION_MESSAGE);
+            return false;
+        } else {
+            try {
+            } catch (NumberFormatException e) {
+                JOptionPane.showMessageDialog(this,
+                        "The data entered in the price field is invalid",
+                        "Invalid Price",
+                        JOptionPane.INFORMATION_MESSAGE);
+                priceField.requestFocusInWindow();
+                return false;
+            }
+        }
+        return true;
+    }
+    
+    private void setData() {
+        String productCode = codeField.getText();
+        String description = descriptionField.getText();
+        String priceString = priceField.getText();
+        double price = Double.parseDouble(priceString);
+        book.setCode(productCode);
+        book.setDescription(description);
+        book.setPrice(price);
+    }
+    
+    private void doEdit() {
+        try {
+            BookDB.update(book);
+            dispose();
+            fireDatabaseUpdatedEvent();
+        } catch (DBException e) {
+            System.out.println(e);
+        }
+    }
+    
+    private void doAdd() {
+        try {
+            BookDB.add(book);
+            dispose();
+            fireDatabaseUpdatedEvent();
+        } catch(DBException e) {
+            System.out.println(e);
+        }
+    }
+    
+    private void fireDatabaseUpdatedEvent() {
+        BookManagerFrame mainWindow = (BookManagerFrame) getOwner();
+        mainWindow.fireDatabaseUpdatedEvent();
+    }
+	
+	
 }
