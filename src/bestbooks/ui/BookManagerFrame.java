@@ -3,6 +3,7 @@ package bestbooks.ui;
 import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.Dimension;
+import java.awt.Font;
 import java.awt.Frame;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
@@ -33,10 +34,11 @@ import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
 import javax.swing.border.EmptyBorder;
 
+import bestbooks.ui.SwingValidator;
 import bestbooks.business.Book;
 import bestbooks.db.BookDB;
 import bestbooks.db.DBException;
-
+	
 @SuppressWarnings("serial")
 public class BookManagerFrame extends JFrame
 {
@@ -54,6 +56,8 @@ public class BookManagerFrame extends JFrame
 	private JCheckBox chkShipping;
 	private JTextField nameField, addressField, cityField, stateField, zipField, phoneField;
 	private JButton btnSubmit;
+	
+	private List<Book> books;
 	
 	public BookManagerFrame()
 	{
@@ -177,6 +181,7 @@ public class BookManagerFrame extends JFrame
 		listBooks = new JList(populateJList());
 		listBooks.setFixedCellWidth(420);;
 		listBooks.setVisibleRowCount(13);
+		listBooks.setFont( new Font("monospaced", Font.PLAIN, 12) );
 		listBooks.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
 		centerPanel.add(listBooks);
 		JScrollPane listScroller = new JScrollPane(listBooks, 
@@ -266,8 +271,40 @@ public class BookManagerFrame extends JFrame
 				getConstraints(1, 5, GridBagConstraints.LINE_START, 1));	
 		orderForm.add(btnSubmit,
 				getConstraints(0, 6, GridBagConstraints.CENTER, 2));
+		this.getRootPane().setDefaultButton(btnSubmit);
 		btnSubmit.addActionListener((ActionEvent) -> {
+			double usedBookDiscountPrice = 10.50;
+			double shippingCost = 2.50;
+			boolean useNewPrice = true;
+			boolean calculateShipping = false;
+			double price = 0;
+			double total = 0;
 			
+//			boolean isValid = checkValidData();
+//			if (isValid)
+//			{
+				if (rdoUsedBook.isSelected())
+				{
+					useNewPrice = false;
+				}
+	
+				if (chkShipping.isSelected())
+				{
+					calculateShipping = true;
+				}
+						
+				int[] index = listBooks.getSelectedIndices();
+				
+				calculateOrderTotal(useNewPrice, calculateShipping, index);
+				
+//				for (int i = 0; i < index.length; i++)
+//				{
+//					price = books.get(index[i]).getPrice();
+//					total += price;
+//				}
+//				
+//				JOptionPane.showMessageDialog(this, "Your order is " + total);
+//			}	
 		});
 		
 		BookManagerFrame.this.add(orderForm, BorderLayout.PAGE_END);
@@ -280,19 +317,73 @@ public class BookManagerFrame extends JFrame
 //		centerPanel.repaint();
 	}
 	
-	public DefaultListModel populateJList()
+	public void calculateOrderTotal(boolean useNewPrice, boolean calculateShipping, int[] index)
+	{
+		double usedBookDiscountPrice = 10.50;
+		final double salesTax = 7.5;
+		double shippingCost = 0;
+		String bookTitle = "";
+		double bookPrice = 0;
+		double orderTax = 0;
+		double subTotal = 0;
+		double orderTotal = 0;
+		
+		for (int i = 0; i < index.length; i++)
+		{
+			bookPrice = books.get(index[i]).getPrice();
+			if (!useNewPrice)
+			{
+				bookPrice -= usedBookDiscountPrice;
+			}
+
+			subTotal += bookPrice;
+		}
+		
+		orderTax = subTotal * (salesTax / 100);
+		orderTotal = subTotal + orderTax;
+	
+		if (calculateShipping)
+		{
+			shippingCost = 2.5;
+			orderTotal += shippingCost;
+		}
+		
+		String  s =  StringUtil.padWithSpaces("Subtotal", 20) + SwingValidator.formatRound(subTotal) + "\n";
+				s += StringUtil.padWithSpaces("Sales Tax", 20) + SwingValidator.formatRound(orderTax) + "\n";
+				s += StringUtil.padWithSpaces("Shipping Total", 20) + SwingValidator.formatRound(shippingCost) + "\n";
+				s += StringUtil.padWithSpaces("Order Total", 20) + SwingValidator.formatRound(orderTotal);
+				
+		ReceiptDialog receiptDialog = new ReceiptDialog(this, true, s);
+		receiptDialog.setLocationRelativeTo(this);
+		receiptDialog.setVisible(true);
+		
+//		JOptionPane.showMessageDialog(this, s);
+	}
+	
+	public boolean checkValidData()
+	{
+		return (SwingValidator.isPresent(nameField, "Name")) &&
+			   (SwingValidator.isPresent(addressField, "Address")) &&
+			   (SwingValidator.isPresent(cityField, "City")) &&
+			   (SwingValidator.isPresent(stateField, "State")) &&
+			   (SwingValidator.isPresent(zipField, "Zipcode")) &&
+			   (SwingValidator.isPresent(phoneField, "Phone"));
+	}
+	
+	public DefaultListModel<Book> populateJList()
 	{
 		listModel = new DefaultListModel<Book>();
 		
-		BookDB book = new BookDB();
+//		BookDB book = new BookDB();
 //		Book books = new Book();
 		try
 		{
-			List<Book> books = book.getAll();
-			
+			books = BookDB.getAll();
+//			listModel.addElement(StringUtil.padWithSpaces("Book Title", 30) + StringUtil.padWithSpaces("Book Cost", 10));
+//			listModel.addElement(StringUtil.padWithSpaces("-", 30) + StringUtil.padWithSpaces("-", 10));
 			for (Book b : books)
 			{
-				listModel.addElement(b.getDescription() + " " + b.getPriceFormatted());
+				listModel.addElement(StringUtil.padWithSpaces(b.getDescription(), 30) + StringUtil.padWithSpaces(b.getPriceFormatted(), 10));
 			}
 			
 //			return listModel;

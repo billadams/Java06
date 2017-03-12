@@ -124,6 +124,7 @@ public class LoginDialog extends JDialog
 				
 			}
 		});
+		this.getRootPane().setDefaultButton(btnLogin);
 		panel.add(btnLogin);
 		
 		return panel;
