@@ -107,6 +107,7 @@ public class LoginDialog extends JDialog
 			{
 				String username = txtUsername.getText();
 				String password = txtPassword.getText();
+				((BookManagerFrame) frame).setDidSubmitiLogin(true);
 				
 				if ((Login.authenticateUser(username, password, true)) && (username.equals("admin") && password.equals("admin")))
 				{

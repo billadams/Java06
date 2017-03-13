@@ -1,6 +1,7 @@
 package bestbooks.ui;
 
 import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Font;
@@ -36,6 +37,7 @@ import javax.swing.border.EmptyBorder;
 
 import bestbooks.ui.SwingValidator;
 import bestbooks.business.Book;
+import bestbooks.business.Order;
 import bestbooks.db.BookDB;
 import bestbooks.db.DBException;
 	
@@ -47,6 +49,8 @@ public class BookManagerFrame extends JFrame
 	private JTable bookTable;
 	private BookTableModel bookTableModel;
 	private JPanel panel;
+	private JPanel headerPanel, centerPanel, optionPanel, orderForm, buttonPanel, tablePanel;
+	private JTable table;
 	
 	private JList listBooks;
 	private DefaultListModel listModel;
@@ -56,6 +60,9 @@ public class BookManagerFrame extends JFrame
 	private JCheckBox chkShipping;
 	private JTextField nameField, addressField, cityField, stateField, zipField, phoneField;
 	private JButton btnSubmit;
+	private boolean isLoggedIn = false;
+	private boolean didSubmitLogin = false;
+	private boolean isAdmin = false;
 	
 	private List<Book> books;
 	
@@ -69,6 +76,7 @@ public class BookManagerFrame extends JFrame
                  IllegalAccessException | UnsupportedLookAndFeelException e) {
             System.out.println(e);
         }
+        setBackground(Color.LIGHT_GRAY);
         setTitle("Best Books Inventory Manager");
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setBounds(400, 400, 450, 300);
@@ -93,9 +101,52 @@ public class BookManagerFrame extends JFrame
 		mnuFileLogin.setMnemonic(KeyEvent.VK_L);
 		mnuFileLogin.addActionListener((ActionEvent) ->
 		{
-			// Get the login type and build the relevant form based on the login credentials.
-			getLoginType();
-//			BookManagerFrame.this.mnuFileLogin.setText("Logout");
+			if (!isLoggedIn)
+			{
+				// Get the login type and build the relevant form based on the login credentials.
+				getLoginType();
+				if (didSubmitLogin)
+				{
+					BookManagerFrame.this.mnuFileLogin.setText("Logout");
+					isLoggedIn = true;
+				}
+			}
+			else
+			{
+				if (!isAdmin)
+				{
+					headerPanel.removeAll();
+					headerPanel.revalidate();
+					headerPanel.repaint();
+					centerPanel.removeAll();
+					centerPanel.revalidate();
+					centerPanel.repaint();
+					optionPanel.removeAll();
+					optionPanel.revalidate();
+					optionPanel.repaint();
+					orderForm.removeAll();
+					orderForm.revalidate();
+					orderForm.repaint();
+				}
+				else
+				{
+					buttonPanel.removeAll();
+					buttonPanel.revalidate();
+					buttonPanel.repaint();
+					tablePanel.removeAll();
+					tablePanel.revalidate();
+					tablePanel.repaint();
+					isAdmin = false;
+				}
+				
+				revalidate();
+				repaint();
+//				BookManagerFrame.this.setSize(450, 300);
+				BookManagerFrame.this.mnuFileLogin.setText("Login");
+				didSubmitLogin = false;
+				isLoggedIn = false;
+			}
+			
 		});
 		mnuFile.add(mnuFileLogin);
 		
@@ -111,20 +162,27 @@ public class BookManagerFrame extends JFrame
 		return menuBar;
 	}
 	
-	private String getLoginType()
+	public boolean getDidSubmitLogin()
 	{
-		String userType = "";
-			
+		return didSubmitLogin;
+	}
+	
+	public void setDidSubmitiLogin(boolean didSubmitLogin)
+	{
+		this.didSubmitLogin = didSubmitLogin;
+	}
+	
+	private void getLoginType()
+	{			
 		LoginDialog loginDialog = new LoginDialog(this, "User Login", true);
 		loginDialog.setLocationRelativeTo(this);
 		loginDialog.setVisible(true);
-		
-		return userType;
 	}
 	
 	public void buildAdminForm()
-	{
-		panel = new JPanel();
+	{	
+		buttonPanel = new JPanel();
+		buttonPanel.setBackground(Color.LIGHT_GRAY);
 		
 		JButton addButton = new JButton("Add");
 		addButton.setToolTipText("Add book");
@@ -132,7 +190,7 @@ public class BookManagerFrame extends JFrame
 		{
 			addNewBook();
 		});
-		panel.add(addButton);
+		buttonPanel.add(addButton);
 		
 		JButton editButton = new JButton("Edit");
 		editButton.setToolTipText("Edit selected book");
@@ -140,7 +198,7 @@ public class BookManagerFrame extends JFrame
 		{
 			editBook();
 		});
-		panel.add(editButton);
+		buttonPanel.add(editButton);
 		
 		JButton deleteButton = new JButton("Delete");
 		deleteButton.setToolTipText("Delete selected book");
@@ -148,35 +206,46 @@ public class BookManagerFrame extends JFrame
 		{
 			deleteBook();
 		});
-		panel.add(deleteButton);
+		buttonPanel.add(deleteButton);
 		
-		BookManagerFrame.this.add(panel, BorderLayout.NORTH);
+		BookManagerFrame.this.add(buttonPanel, BorderLayout.NORTH);
 		
 		// Build table
+		tablePanel = new JPanel();
+		tablePanel.setBackground(Color.LIGHT_GRAY);
+		
 		bookTableModel = new BookTableModel();
-		JTable table = new JTable(bookTableModel);
-		bookTable = table;
+		table = new JTable(bookTableModel);
+//		bookTable = table;
 		table.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 		table.setBorder(null);
-		BookManagerFrame.this.add(new JScrollPane(table), BorderLayout.CENTER);
+		JScrollPane spTable = new JScrollPane(table);
 		
-		panel.revalidate();  
-		panel.repaint();
+		tablePanel.add(spTable);
+		BookManagerFrame.this.add(tablePanel, BorderLayout.CENTER);
+			
+		isAdmin = true;
+		
+		pack();
+		revalidate();  
+		repaint();
 	}
 	
 	public void buildStandardForm()
-	{
+	{	
 		// Create the header.
-		JPanel headerPanel = new JPanel();
+		headerPanel = new JPanel();
 		
-		JLabel heading = new JLabel();
-		heading.setText("BestBooks Book Purchasing Client");
-		headerPanel.add(heading);
+//		JLabel heading = new JLabel();
+//		heading.setText("BestBooks Book Purchasing Client");
+//		headerPanel.add(heading);
+//		headerPanel.setBackground(Color.LIGHT_GRAY);
 		
 		BookManagerFrame.this.add(headerPanel, BorderLayout.NORTH);
 		
 		// Create the center pane that holds the list.
-		JPanel centerPanel = new JPanel();
+		centerPanel = new JPanel();
+		centerPanel.setBackground(Color.LIGHT_GRAY);
 		
 		listBooks = new JList(populateJList());
 		listBooks.setFixedCellWidth(420);;
@@ -195,7 +264,8 @@ public class BookManagerFrame extends JFrame
 		GridBagConstraints c = new GridBagConstraints();
 		c.insets = new Insets(5 ,5, 0, 5);
 		
-		JPanel optionPanel = new JPanel(new GridBagLayout());
+		optionPanel = new JPanel(new GridBagLayout());
+		optionPanel.setBackground(Color.LIGHT_GRAY);
 		
 		rdoNewBook = new JRadioButton("New Book");
 		rdoNewBook.setSelected(true);
@@ -222,7 +292,9 @@ public class BookManagerFrame extends JFrame
 		
 		
 		// Create the south pane that holds the text fields and submit button.
-		JPanel orderForm = new JPanel(new GridBagLayout());
+		orderForm = new JPanel(new GridBagLayout());
+		orderForm.setBackground(Color.LIGHT_GRAY);
+		
 		nameField = new JTextField();
 		addressField = new JTextField();
 		cityField = new JTextField();
@@ -273,14 +345,10 @@ public class BookManagerFrame extends JFrame
 				getConstraints(0, 6, GridBagConstraints.CENTER, 2));
 		this.getRootPane().setDefaultButton(btnSubmit);
 		btnSubmit.addActionListener((ActionEvent) -> {
-			double usedBookDiscountPrice = 10.50;
-			double shippingCost = 2.50;
 			boolean useNewPrice = true;
 			boolean calculateShipping = false;
-			double price = 0;
-			double total = 0;
-			
 //			boolean isValid = checkValidData();
+			
 //			if (isValid)
 //			{
 				if (rdoUsedBook.isSelected())
@@ -293,71 +361,30 @@ public class BookManagerFrame extends JFrame
 					calculateShipping = true;
 				}
 						
-				int[] index = listBooks.getSelectedIndices();
+				int[] selectedItems = listBooks.getSelectedIndices();
 				
-				calculateOrderTotal(useNewPrice, calculateShipping, index);
+				Order order = new Order(selectedItems);
+				order.calculateOrderTotal(useNewPrice, calculateShipping);
 				
-//				for (int i = 0; i < index.length; i++)
-//				{
-//					price = books.get(index[i]).getPrice();
-//					total += price;
-//				}
-//				
-//				JOptionPane.showMessageDialog(this, "Your order is " + total);
+				String orderDetails = order.print().toString();
+				
+				// Display the order receipt.
+				ReceiptDialog receiptDialog = new ReceiptDialog(this, true, orderDetails);
+				receiptDialog.setLocationRelativeTo(this);
+				receiptDialog.setVisible(true);
 //			}	
 		});
 		
 		BookManagerFrame.this.add(orderForm, BorderLayout.PAGE_END);
 				
 		pack();
+		revalidate();  
+		repaint();
 		
-//		headerPanel.revalidate();
-//		headerPanel.repaint();
-//		centerPanel.revalidate();
-//		centerPanel.repaint();
-	}
-	
-	public void calculateOrderTotal(boolean useNewPrice, boolean calculateShipping, int[] index)
-	{
-		double usedBookDiscountPrice = 10.50;
-		final double salesTax = 7.5;
-		double shippingCost = 0;
-		String bookTitle = "";
-		double bookPrice = 0;
-		double orderTax = 0;
-		double subTotal = 0;
-		double orderTotal = 0;
-		
-		for (int i = 0; i < index.length; i++)
-		{
-			bookPrice = books.get(index[i]).getPrice();
-			if (!useNewPrice)
-			{
-				bookPrice -= usedBookDiscountPrice;
-			}
-
-			subTotal += bookPrice;
-		}
-		
-		orderTax = subTotal * (salesTax / 100);
-		orderTotal = subTotal + orderTax;
-	
-		if (calculateShipping)
-		{
-			shippingCost = 2.5;
-			orderTotal += shippingCost;
-		}
-		
-		String  s =  StringUtil.padWithSpaces("Subtotal", 20) + SwingValidator.formatRound(subTotal) + "\n";
-				s += StringUtil.padWithSpaces("Sales Tax", 20) + SwingValidator.formatRound(orderTax) + "\n";
-				s += StringUtil.padWithSpaces("Shipping Total", 20) + SwingValidator.formatRound(shippingCost) + "\n";
-				s += StringUtil.padWithSpaces("Order Total", 20) + SwingValidator.formatRound(orderTotal);
-				
-		ReceiptDialog receiptDialog = new ReceiptDialog(this, true, s);
-		receiptDialog.setLocationRelativeTo(this);
-		receiptDialog.setVisible(true);
-		
-//		JOptionPane.showMessageDialog(this, s);
+		headerPanel.revalidate();
+		headerPanel.repaint();
+		centerPanel.revalidate();
+		centerPanel.repaint();
 	}
 	
 	public boolean checkValidData()
@@ -374,19 +401,14 @@ public class BookManagerFrame extends JFrame
 	{
 		listModel = new DefaultListModel<Book>();
 		
-//		BookDB book = new BookDB();
-//		Book books = new Book();
 		try
 		{
 			books = BookDB.getAll();
-//			listModel.addElement(StringUtil.padWithSpaces("Book Title", 30) + StringUtil.padWithSpaces("Book Cost", 10));
-//			listModel.addElement(StringUtil.padWithSpaces("-", 30) + StringUtil.padWithSpaces("-", 10));
+
 			for (Book b : books)
 			{
 				listModel.addElement(StringUtil.padWithSpaces(b.getDescription(), 30) + StringUtil.padWithSpaces(b.getPriceFormatted(), 10));
 			}
-			
-//			return listModel;
 		} catch (DBException e)
 		{
 			// TODO Auto-generated catch block
