@@ -184,7 +184,7 @@ public class Order implements IPrintable
 		for (int i = 0; i < selectedItems.length; i++)
 		{
 			bookTitle = books.get(selectedItems[i]).getDescription();
-//			bookPrice = books.get(selectedItems[i]).getPrice();
+			bookPrice = books.get(selectedItems[i]).getPrice();
 			
 			sb.append(StringUtil.padWithSpaces(bookTitle, 40));
 			sb.append(SwingValidator.formatRound(bookPrice) + "\n");
