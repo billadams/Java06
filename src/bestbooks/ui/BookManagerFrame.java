@@ -88,6 +88,11 @@ public class BookManagerFrame extends JFrame
 		setVisible(true);
 	}
 	
+	/**
+	 * Builds the menu bar at the top of the main application.
+	 * 
+	 * @return JMenuBar object
+	 */
 	private JMenuBar buildMenuBar()
 	{
 		// Build the menu.
@@ -104,7 +109,7 @@ public class BookManagerFrame extends JFrame
 			if (!isLoggedIn)
 			{
 				// Get the login type and build the relevant form based on the login credentials.
-				getLoginType();
+				displayLoginWindow();
 				if (didSubmitLogin)
 				{
 					BookManagerFrame.this.mnuFileLogin.setText("Logout");
@@ -116,31 +121,31 @@ public class BookManagerFrame extends JFrame
 				if (!isAdmin)
 				{
 					headerPanel.removeAll();
-					headerPanel.revalidate();
-					headerPanel.repaint();
+//					headerPanel.revalidate();
+//					headerPanel.repaint();
 					centerPanel.removeAll();
-					centerPanel.revalidate();
-					centerPanel.repaint();
+//					centerPanel.revalidate();
+//					centerPanel.repaint();
 					optionPanel.removeAll();
-					optionPanel.revalidate();
-					optionPanel.repaint();
+//					optionPanel.revalidate();
+//					optionPanel.repaint();
 					orderForm.removeAll();
-					orderForm.revalidate();
-					orderForm.repaint();
+//					orderForm.revalidate();
+//					orderForm.repaint();
 				}
 				else
 				{
 					buttonPanel.removeAll();
-					buttonPanel.revalidate();
-					buttonPanel.repaint();
+//					buttonPanel.revalidate();
+//					buttonPanel.repaint();
 					tablePanel.removeAll();
-					tablePanel.revalidate();
-					tablePanel.repaint();
+//					tablePanel.revalidate();
+//					tablePanel.repaint();
 					isAdmin = false;
 				}
 				
 				revalidate();
-				repaint();
+//				repaint();
 //				BookManagerFrame.this.setSize(450, 300);
 				BookManagerFrame.this.mnuFileLogin.setText("Login");
 				didSubmitLogin = false;
@@ -162,23 +167,44 @@ public class BookManagerFrame extends JFrame
 		return menuBar;
 	}
 	
+	/**
+	 * Gets the didSubmitLogin variable.
+	 * 
+	 * @return boolean
+	 */
 	public boolean getDidSubmitLogin()
 	{
 		return didSubmitLogin;
 	}
 	
+	/**
+	 * Sets the didSubmitLogin variable.
+	 * 
+	 * @param boolean didSubmitLogin
+	 * @return void
+	 */
 	public void setDidSubmitiLogin(boolean didSubmitLogin)
 	{
 		this.didSubmitLogin = didSubmitLogin;
 	}
 	
-	private void getLoginType()
+	/**
+	 * Creates the login window. 
+	 * 
+	 * @return void
+	 */
+	private void displayLoginWindow()
 	{			
 		LoginDialog loginDialog = new LoginDialog(this, "User Login", true);
 		loginDialog.setLocationRelativeTo(this);
 		loginDialog.setVisible(true);
 	}
 	
+	/**
+	 * Creates the Admin window.
+	 * 
+	 * @return void
+	 */
 	public void buildAdminForm()
 	{	
 		buttonPanel = new JPanel();
@@ -225,12 +251,25 @@ public class BookManagerFrame extends JFrame
 		BookManagerFrame.this.add(tablePanel, BorderLayout.CENTER);
 			
 		isAdmin = true;
+
+		buttonPanel.setVisible(true);
+		tablePanel.setVisible(true);
 		
+		buttonPanel.revalidate();
+		tablePanel.revalidate();
+		
+//		revalidate();  
+		
+//		repaint();
 		pack();
-		revalidate();  
-		repaint();
+
 	}
 	
+	/**
+	 * Creates the standard user form.
+	 * 
+	 * @return void
+	 */
 	public void buildStandardForm()
 	{	
 		// Create the header.
@@ -376,17 +415,34 @@ public class BookManagerFrame extends JFrame
 		});
 		
 		BookManagerFrame.this.add(orderForm, BorderLayout.PAGE_END);
-				
-		pack();
-		revalidate();  
-		repaint();
+		
+		headerPanel.setVisible(true);
+		centerPanel.setVisible(true);
+		optionPanel.setVisible(true);
+		orderForm.setVisible(true);
 		
 		headerPanel.revalidate();
-		headerPanel.repaint();
 		centerPanel.revalidate();
-		centerPanel.repaint();
+		optionPanel.revalidate();
+		orderForm.revalidate();
+
+
+		revalidate();  
+//		repaint();
+		pack();
+
+		
+//		headerPanel.revalidate();
+//		headerPanel.repaint();
+//		centerPanel.revalidate();
+//		centerPanel.repaint();
 	}
 	
+	/**
+	 * Checks fields for the correct data.
+	 * 
+	 * @return boolean
+	 */
 	public boolean checkValidData()
 	{
 		return (SwingValidator.isPresent(nameField, "Name")) &&
@@ -397,6 +453,11 @@ public class BookManagerFrame extends JFrame
 			   (SwingValidator.isPresent(phoneField, "Phone"));
 	}
 	
+	/**
+	 * Populates the JList in the standard user form
+	 * 
+	 * @return
+	 */
 	public DefaultListModel<Book> populateJList()
 	{
 		listModel = new DefaultListModel<Book>();

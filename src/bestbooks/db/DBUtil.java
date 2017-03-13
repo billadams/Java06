@@ -22,7 +22,7 @@ public class DBUtil
 			{
 				String url = "jdbc:mysql://localhost:3306/Books";
 				String username = "root";
-				String password = "Powerstroke172";
+				String password = "";
 				
 				connection = DriverManager.getConnection(url, username, password);
 				
