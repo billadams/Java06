@@ -7,6 +7,7 @@ import bestbooks.db.DBException;
 import bestbooks.ui.StringUtil;
 import bestbooks.ui.SwingValidator;
 
+// Class used to build up an order and print out a receipt.
 public class Order implements IPrintable
 {
 	private final double USED_BOOK_DISCOUNT_PRICE = 10.50;
@@ -16,6 +17,7 @@ public class Order implements IPrintable
 	private double orderTax;
 	private double orderTotal;
 	private double bookPrice;
+	private boolean useNewBookPrice;
 	
 	private List<Book> books;
 	private int[] selectedItems;
@@ -36,12 +38,13 @@ public class Order implements IPrintable
 		}
 	}
 	
-	public Order(int[] selectedItems) 
+	public Order(int[] selectedItems, boolean useNewBookPrice) 
 	{
 		this.shippingCost = 0;
 		this.subTotal = 0;
 		this.orderTax = 0;
 		this.orderTotal = 0;
+		this.useNewBookPrice = useNewBookPrice;
 		try
 		{
 			this.books = BookDB.getAll();
@@ -67,6 +70,16 @@ public class Order implements IPrintable
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+	}
+	
+	public boolean getUseNewBookPrice()
+	{
+		return useNewBookPrice;
+	}
+	
+	public void setUseNewBookPrice(boolean useNewBookPrice)
+	{
+		this.useNewBookPrice = useNewBookPrice;
 	}
 	
 	public int[] getSelectedItems()
@@ -149,6 +162,14 @@ public class Order implements IPrintable
 		return SALES_TAX;
 	}
 	
+	/**
+	 * Calculates the cost of an order.
+	 * 
+	 * @param useNewPrice
+	 * @param calculateShipping
+	 * 
+	 * @return void
+	 */
 	public void calculateOrderTotal(boolean useNewPrice, boolean calculateShipping)
 	{		
 		for (int i = 0; i < selectedItems.length; i++)
@@ -175,19 +196,26 @@ public class Order implements IPrintable
 	@Override
 	public StringBuilder print()
 	{
-		String bookTitle = "";
-//		double bookPrice = 0;
+		String title = "";
+		double price = 0;
 		StringBuilder sb = new StringBuilder();
 		
 		sb.append(StringUtil.padWithSpaces("Book Title", 40));
 		sb.append("Book Price\n");
 		for (int i = 0; i < selectedItems.length; i++)
 		{
-			bookTitle = books.get(selectedItems[i]).getDescription();
-			bookPrice = books.get(selectedItems[i]).getPrice();
-			
-			sb.append(StringUtil.padWithSpaces(bookTitle, 40));
-			sb.append(SwingValidator.formatRound(bookPrice) + "\n");
+			title = books.get(selectedItems[i]).getDescription();
+			if (!useNewBookPrice)
+			{
+				price = books.get(selectedItems[i]).getPrice() - USED_BOOK_DISCOUNT_PRICE;
+			}
+			else
+			{
+				price = books.get(selectedItems[i]).getPrice();
+			}
+	
+			sb.append(StringUtil.padWithSpaces(title, 40));
+			sb.append(SwingValidator.formatRound(price) + "\n");
 		}
 		
 		sb.append("\n\n");

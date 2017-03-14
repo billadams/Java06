@@ -47,6 +47,9 @@ public class BookForm extends JDialog
 		priceField.setText(Double.toString(book.getPrice()));
 	}
 	
+	/**
+	 * Builds the form for adding and editing data in the admin form.
+	 */
 	private void initComponents()
 	{
 		codeField = new JTextField();
@@ -102,6 +105,15 @@ public class BookForm extends JDialog
 		pack();
 	}
 	
+	/**
+	 * Helper function to more easily set up GridBagConstraints.
+	 * 
+	 * @param x
+	 * @param y
+	 * @param anchor
+	 * @param width
+	 * @return GridBagConstraints object
+	 */
 	private GridBagConstraints getConstraints(int x, int y, int anchor)
 	{
 		GridBagConstraints c = new GridBagConstraints();
@@ -113,6 +125,9 @@ public class BookForm extends JDialog
 		return c;	
 	}
 	
+	/**
+	 * Get rid of the form.
+	 */
 	private void cancelButtonActionPerformed() {
 		dispose();
 	}

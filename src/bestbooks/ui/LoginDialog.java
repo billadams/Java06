@@ -8,9 +8,6 @@ import javax.swing.*;
 @SuppressWarnings("serial")
 public class LoginDialog extends JDialog
 {
-//	private JRadioButton rdoStandard;
-//	private JRadioButton rdoAdmin;
-//	private final ButtonGroup buttonGroup = new ButtonGroup();
 	private JTextField txtUsername;
 	private JTextField txtPassword;
 	private JLabel lblLoginAdminCredentials;
@@ -19,7 +16,6 @@ public class LoginDialog extends JDialog
 	private JLabel lblPassword;
 	private JButton btnLogin;
 	private JButton btnCancel;
-//	private boolean succeeded;
 	
 	public LoginDialog(Frame frame, String title, boolean modal)
 	{
@@ -113,16 +109,12 @@ public class LoginDialog extends JDialog
 				{
 					((BookManagerFrame) frame).buildAdminForm();
 					dispose();
-					
-//					JOptionPane.showMessageDialog(frame, "Logged in as admin", "Login type", JOptionPane.INFORMATION_MESSAGE);
 				}
 				else if ((Login.authenticateUser(username, password, false)) && (username.equals("default") && password.equals("default")))
 				{
 					((BookManagerFrame) frame).buildStandardForm();
 					dispose();
-//					JOptionPane.showMessageDialog(frame, "Logged in as standard user", "Login type", JOptionPane.INFORMATION_MESSAGE);
-				}
-				
+				}			
 			}
 		});
 		this.getRootPane().setDefaultButton(btnLogin);

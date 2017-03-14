@@ -22,7 +22,6 @@ public class ReceiptDialog extends JDialog
 	{
 		super(frame, "Order Receipt", modal);
 		
-//		setSize(300, 500);
 		add(buildReceiptPanel(orderDetails), BorderLayout.CENTER);
 		add(buildButtonPanel(), BorderLayout.PAGE_END);
 

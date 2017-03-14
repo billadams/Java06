@@ -10,6 +10,9 @@ import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
 import java.awt.event.KeyEvent;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.time.format.FormatStyle;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -65,6 +68,7 @@ public class BookManagerFrame extends JFrame
 	private boolean isAdmin = false;
 	
 	private List<Book> books;
+	LocalDate today = LocalDate.now();
 	
 	public BookManagerFrame()
 	{
@@ -120,38 +124,24 @@ public class BookManagerFrame extends JFrame
 			{
 				if (!isAdmin)
 				{
-					headerPanel.removeAll();
-//					headerPanel.revalidate();
-//					headerPanel.repaint();
-					centerPanel.removeAll();
-//					centerPanel.revalidate();
-//					centerPanel.repaint();
-					optionPanel.removeAll();
-//					optionPanel.revalidate();
-//					optionPanel.repaint();
-					orderForm.removeAll();
-//					orderForm.revalidate();
-//					orderForm.repaint();
+					// When logging out, just hide the panels. Seems to be the best solution, for now....
+					headerPanel.setVisible(false);
+					centerPanel.setVisible(false);
+					optionPanel.setVisible(false);
+					orderForm.setVisible(false);
 				}
 				else
 				{
-					buttonPanel.removeAll();
-//					buttonPanel.revalidate();
-//					buttonPanel.repaint();
-					tablePanel.removeAll();
-//					tablePanel.revalidate();
-//					tablePanel.repaint();
+					// If admin was logged in, log them out and hide the admin panels.
+					buttonPanel.setVisible(false);
+					tablePanel.setVisible(false);
 					isAdmin = false;
 				}
 				
-				revalidate();
-//				repaint();
-//				BookManagerFrame.this.setSize(450, 300);
 				BookManagerFrame.this.mnuFileLogin.setText("Login");
 				didSubmitLogin = false;
 				isLoggedIn = false;
-			}
-			
+			}		
 		});
 		mnuFile.add(mnuFileLogin);
 		
@@ -236,13 +226,12 @@ public class BookManagerFrame extends JFrame
 		
 		BookManagerFrame.this.add(buttonPanel, BorderLayout.NORTH);
 		
-		// Build table
+		// Build the table for interacting with the books in the database.
 		tablePanel = new JPanel();
 		tablePanel.setBackground(Color.LIGHT_GRAY);
 		
 		bookTableModel = new BookTableModel();
 		table = new JTable(bookTableModel);
-//		bookTable = table;
 		table.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 		table.setBorder(null);
 		JScrollPane spTable = new JScrollPane(table);
@@ -258,11 +247,7 @@ public class BookManagerFrame extends JFrame
 		buttonPanel.revalidate();
 		tablePanel.revalidate();
 		
-//		revalidate();  
-		
-//		repaint();
 		pack();
-
 	}
 	
 	/**
@@ -275,10 +260,13 @@ public class BookManagerFrame extends JFrame
 		// Create the header.
 		headerPanel = new JPanel();
 		
-//		JLabel heading = new JLabel();
-//		heading.setText("BestBooks Book Purchasing Client");
-//		headerPanel.add(heading);
-//		headerPanel.setBackground(Color.LIGHT_GRAY);
+		DateTimeFormatter dtf = DateTimeFormatter.ofLocalizedDate(FormatStyle.FULL);
+		String currentDateTimeFormatted = dtf.format(today);
+		
+		JLabel heading = new JLabel();
+		heading.setText(currentDateTimeFormatted);
+		headerPanel.add(heading);
+		headerPanel.setBackground(Color.LIGHT_GRAY);
 		
 		BookManagerFrame.this.add(headerPanel, BorderLayout.NORTH);
 		
@@ -386,56 +374,47 @@ public class BookManagerFrame extends JFrame
 		btnSubmit.addActionListener((ActionEvent) -> {
 			boolean useNewPrice = true;
 			boolean calculateShipping = false;
-//			boolean isValid = checkValidData();
-			
-//			if (isValid)
-//			{
-				if (rdoUsedBook.isSelected())
+					
+			if (listBooks.getSelectedIndex() == -1)
+			{
+				JOptionPane.showMessageDialog(this, 
+						"No product is currently selected.",
+						"No product selected", JOptionPane.ERROR_MESSAGE);
+			}
+			else
+			{
+				boolean isValid = checkValidData();
+				if (isValid)
 				{
-					useNewPrice = false;
-				}
-	
-				if (chkShipping.isSelected())
-				{
-					calculateShipping = true;
-				}
-						
-				int[] selectedItems = listBooks.getSelectedIndices();
-				
-				Order order = new Order(selectedItems);
-				order.calculateOrderTotal(useNewPrice, calculateShipping);
-				
-				String orderDetails = order.print().toString();
-				
-				// Display the order receipt.
-				ReceiptDialog receiptDialog = new ReceiptDialog(this, true, orderDetails);
-				receiptDialog.setLocationRelativeTo(this);
-				receiptDialog.setVisible(true);
-//			}	
+					if (rdoUsedBook.isSelected())
+					{
+						useNewPrice = false;
+					}
+		
+					if (chkShipping.isSelected())
+					{
+						calculateShipping = true;
+					}
+							
+					int[] selectedItems = listBooks.getSelectedIndices();
+					
+					Order order = new Order(selectedItems, useNewPrice);
+					order.calculateOrderTotal(useNewPrice, calculateShipping);
+					
+					String orderDetails = order.print().toString();
+					
+					// Display the order receipt.
+					ReceiptDialog receiptDialog = new ReceiptDialog(this, true, orderDetails);
+					receiptDialog.setLocationRelativeTo(this);
+					receiptDialog.setVisible(true);
+				}	
+			}
+
 		});
 		
 		BookManagerFrame.this.add(orderForm, BorderLayout.PAGE_END);
 		
-		headerPanel.setVisible(true);
-		centerPanel.setVisible(true);
-		optionPanel.setVisible(true);
-		orderForm.setVisible(true);
-		
-		headerPanel.revalidate();
-		centerPanel.revalidate();
-		optionPanel.revalidate();
-		orderForm.revalidate();
-
-
-		revalidate();  
-//		repaint();
 		pack();
-
-		
-//		headerPanel.revalidate();
-//		headerPanel.repaint();
-//		centerPanel.revalidate();
-//		centerPanel.repaint();
 	}
 	
 	/**
@@ -479,6 +458,15 @@ public class BookManagerFrame extends JFrame
 		return listModel;
 	}
 	
+	/**
+	 * Helper function to more easily set up GridBagConstraints.
+	 * 
+	 * @param x
+	 * @param y
+	 * @param anchor
+	 * @param width
+	 * @return GridBagConstraints object
+	 */
 	private GridBagConstraints getConstraints(int x, int y, int anchor, int width)
 	{
 		GridBagConstraints c = new GridBagConstraints();
@@ -491,6 +479,11 @@ public class BookManagerFrame extends JFrame
 		return c;	
 	}
 	
+	/**
+	 * Displays the addNewBook form.
+	 * 
+	 * @return void
+	 */
 	private void addNewBook()
 	{
 		BookForm bookForm = new BookForm(this, "Add Book", true);
@@ -498,9 +491,14 @@ public class BookManagerFrame extends JFrame
 		bookForm.setVisible(true);
 	}
 	
+	/**
+	 * Displays the editBook form.
+	 * 
+	 * @return void
+	 */
 	private void editBook()
 	{
-		int selectedRow = bookTable.getSelectedRow();
+		int selectedRow = table.getSelectedRow();
 		if (selectedRow == -1)
 		{
 			JOptionPane.showMessageDialog(this, 
@@ -516,9 +514,14 @@ public class BookManagerFrame extends JFrame
 		}
 	}
 	
+	/**
+	 * Displays the deleteBook form.
+	 * 
+	 * @return void
+	 */
 	private void deleteBook()
 	{
-        int selectedRow = bookTable.getSelectedRow();
+        int selectedRow = table.getSelectedRow();
         if (selectedRow == -1) {
             JOptionPane.showMessageDialog(this,
                     "No product is currently selected.", 
@@ -546,6 +549,12 @@ public class BookManagerFrame extends JFrame
         }
 	}
 	
+	/**
+	 * Updates the table whenever a new entry is added to the book table,
+	 * when a book is edited, or when a book is deleted.
+	 * 
+	 * @return void
+	 */
     void fireDatabaseUpdatedEvent() {
         bookTableModel.databaseUpdated();
     }   
